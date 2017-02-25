@@ -4,11 +4,29 @@
   "description": "A single page web app router",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp --gulpfile .travis/Gulpfile.js --cwd ./",
+    "test": "node_modules/.bin/mocha ./travis/main.js",
+    "coverage": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- .travis/main.js --report json",
+    "remap-core": "node_modules/.bin/remap-istanbul -i coverage/coverage.json -o coverage/mapped.json -b ./",
+    "remap-cov": "npm run coverage && npm run remap-core && ./node_modules/.bin/istanbul report --include \"coverage/mapped.json\" lcov",
+    "coveralls": "npm run remap-cov && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "keywords": [
     "application-frame"
   ],
   "author": "Jovan Gerodetti (TitanNano)",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "application-frame": "^0.6.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.23.0",
+    "callsite": "^1.0.0",
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-clean": "^0.3.2",
+    "gulp-sourcemaps": "^2.4.1",
+    "istanbul": "^0.4.5",
+    "merge-stream": "^1.0.1",
+    "mocha": "^3.2.0"
+  }
 }
