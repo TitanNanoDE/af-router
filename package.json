@@ -21,6 +21,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.23.0",
     "callsite": "^1.0.0",
     "chai": "^3.5.0",
+    "coveralls": "^2.11.16",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-clean": "^0.3.2",
