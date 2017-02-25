@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-const VM = require('application-frame/testable/node/vm');
+const VM = require('application-frame/node/vm');
 const callsite = require('callsite');
 const Path = require('path');
 const { expect } = require('chai');
