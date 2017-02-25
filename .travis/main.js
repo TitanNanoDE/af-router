@@ -127,7 +127,7 @@ describe('RouteChange', () => {
         it('should enter the action that matches the current path', () => {
             executedActions[0] = executedActions[1] = executedActions[2] = false;
 
-            vm.runModule('./tests/routeChange_trigger_1');
+            vm.runModule('./tests/routeChange_trigger_1.js');
 
             expect(executedActions).to.be.eql(['enter_0', false, false]);
         });
@@ -138,7 +138,7 @@ describe('RouteChange', () => {
             vm._context.global.routeChange.path = path;
             executedActions[0] = executedActions[1] = executedActions[2] = false;
 
-            vm.runModule('./tests/routeChange_trigger_1');
+            vm.runModule('./tests/RouteChange_trigger_1.js');
 
             expect(executedActions).to.be.eql([false, 'enter_1', false]);
         });
@@ -148,7 +148,7 @@ describe('RouteChange', () => {
             executedActions[0] = executedActions[1] = executedActions[2] = false;
 
             vm._context.global.routeChange.path = path;
-            vm.runModule('./tests/routeChange_trigger_1');
+            vm.runModule('./tests/routeChange_trigger_1.js');
 
             expect(executedActions).to.be.eql([false, false, false]);
         });
