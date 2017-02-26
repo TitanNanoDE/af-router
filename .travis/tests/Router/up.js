@@ -1,0 +1,5 @@
+/* global Router */
+
+(() => {
+    Router.up();
+})();

@@ -5,7 +5,7 @@ const Path = require('path');
 
 const instrumenter = new istanbul.Instrumenter();
 
-module.exports = function() {
+module.exports = function(data = {}) {
     const coverage = Object.keys(global).find(key => key.indexOf('$$cov_') === 0);
 
     const context = {
@@ -20,7 +20,8 @@ module.exports = function() {
             stats: { error: 0, warn: 0, log: 0, },
             log() { this.stats.log += 1; },
             error() { this.stats.error += 1; },
-            warn() { this.stats.warn += 1; }
+            warn() { this.stats.warn += 1; },
+            write(...args) { console.log(...args); }
         },
         exports: {},
         global: null,
@@ -28,16 +29,21 @@ module.exports = function() {
     };
 
     context.global = context;
+    Object.assign(context, data);
 
     const vm = Object.create(VM).constructor(context);
 
-    vm.addLoadHook((code, filename) => {
-        if (filename.indexOf('.travis') < 0) {
-            code = instrumenter.instrumentSync(code, filename);
-        }
+    vm._hooks = [];
 
-        return code;
-    });
+    if (coverage) {
+        vm.addLoadHook((code, filename) => {
+            if (filename.indexOf('.travis') < 0) {
+                code = instrumenter.instrumentSync(code, filename);
+            }
+
+            return code;
+        });
+    }
 
     return vm;
 };
