@@ -1,7 +1,7 @@
 {
   "name": "@af-modules/router",
   "version": "0.1.0",
-  "description": "A single page web app router",
+  "description": "A single page web application router",
   "main": "main.js",
   "scripts": {
     "build": "gulp --gulpfile .travis/Gulpfile.js --cwd ./",
@@ -12,7 +12,9 @@
     "coveralls": "npm run remap-cov && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "keywords": [
-    "application-frame"
+    "application-frame",
+    "af-module",
+    "router"
   ],
   "author": "Jovan Gerodetti (TitanNano)",
   "license": "Apache-2.0",
@@ -30,5 +32,13 @@
     "merge-stream": "^1.0.1",
     "mocha": "^3.2.0",
     "remap-istanbul": "^0.9.1"
+  },
+  "bugs": {
+    "url": "https://github.com/TitanNanoDE/af-router/issues"
+  },
+  "homepage": "https://github.com/TitanNanoDE/af-router#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TitanNanoDE/af-router.git"
   }
 }
