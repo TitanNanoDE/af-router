@@ -1,25 +1,12 @@
 /* eslint-env mocha */
-const VM = require('application-frame/node/vm');
-const callsite = require('callsite');
-const Path = require('path');
 const { expect } = require('chai');
+const istanbulVM = require('./istanbulVM');
 const RouteChangeType = require('../testable/lib/RouteChangeType').default;
+
 
 describe('RouteChange', () => {
     const validTestRegExp = /^\/test\/([^\/#?]+)\/page\/([^\/#?]+)\/dialog\/([^\/#?]+)$/;
-
-    const vm = Object.create(VM).constructor({
-        require(path) {
-            let cwd = callsite()[1].getFileName();
-            cwd = Path.dirname(cwd);
-            path = Path.resolve(cwd, path);
-
-            return require(path);
-        },
-        exports: {},
-        global: {},
-    });
-
+    const vm = istanbulVM();
     let result = null;
 
     describe('::transfromPathToRegExp', () => {
@@ -151,6 +138,18 @@ describe('RouteChange', () => {
             vm.runModule('./tests/RouteChange_trigger_1');
 
             expect(executedActions).to.be.eql([false, false, false]);
+        });
+
+        it('should error if an invalid change type was set', () => {
+            const path = '/home/rooms/place/1';
+            executedActions[0] = executedActions[1] = executedActions[2] = false;
+
+            vm._context.routeChange.type = 123;
+            vm._context.routeChange.path = path;
+            result = vm.runModule('./tests/RouteChange_trigger_1');
+
+            expect(executedActions).to.be.eql([false, false, false]);
+            expect(result.console.stats.error).to.be.equal(1);
         });
     });
 });
