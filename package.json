@@ -1,6 +1,6 @@
 {
   "name": "@af-modules/router",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A single page web application router",
   "main": "main.js",
   "scripts": {
