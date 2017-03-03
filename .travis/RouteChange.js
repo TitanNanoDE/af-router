@@ -26,6 +26,12 @@ describe('RouteChange', () => {
         it('should collect all params', () => {
             expect(Object.keys(result.global.result.paramsCollector)).to.have.lengthOf(3, 3);
         });
+
+        it('should correctly transform a modal path', () => {
+            result = vm.runModule('./tests/RouteChange/transformPathToRegExp_2');
+
+            expect(result.currentResult.regExp.source).to.be.equal(/^.*\/modal$/.source);
+        });
     });
 
     describe('::populateStateParamValues', () => {
@@ -61,6 +67,12 @@ describe('RouteChange', () => {
             result = vm.runModule('./tests/RouteChange_routeItemWasEntered_3');
 
             expect(result.global.result).to.not.be.ok;
+        });
+
+        it('should correctly match a modal state', () => {
+            result = vm.runModule('./tests/RouteChange/routeItemWasEntered_4');
+
+            expect(result.currentResult).to.be.eql([true, true, true]);
         });
     });
 
