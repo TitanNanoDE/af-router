@@ -190,7 +190,7 @@ describe('Router', () => {
 
             result = vm.runModule('./tests/Router/getCurrentPath');
 
-            expect(result.currentPath).to.be.eql(['#!', '']);
+            expect(result.currentPath).to.be.eql(['#!', 'root']);
         });
     });
 
