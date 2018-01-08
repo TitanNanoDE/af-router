@@ -1,4 +1,6 @@
 # AF Router
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/TitanNanoDE/af-router.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/TitanNanoDE/af-router.svg?branch=master)](https://travis-ci.org/TitanNanoDE/af-router)
 [![Coverage Status](https://coveralls.io/repos/github/TitanNanoDE/af-router/badge.svg?branch=master)](https://coveralls.io/github/TitanNanoDE/af-router?branch=master)
 
