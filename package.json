@@ -20,17 +20,18 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "application-frame": "^0.6.2",
+    "babel-core": "^6.26.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.23.0",
     "callsite": "^1.0.0",
-    "chai": "^3.5.0",
-    "coveralls": "^2.11.16",
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
+    "gulp-babel": "^7.0.0",
     "gulp-clean": "^0.3.2",
     "gulp-sourcemaps": "^2.4.1",
     "istanbul": "^0.4.5",
     "merge-stream": "^1.0.1",
-    "mocha": "^3.2.0",
+    "mocha": "^4.1.0",
     "remap-istanbul": "^0.9.1"
   },
   "bugs": {
