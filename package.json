@@ -19,7 +19,7 @@
   "author": "Jovan Gerodetti (TitanNano)",
   "license": "Apache-2.0",
   "devDependencies": {
-    "application-frame": "^0.6.2",
+    "application-frame": "^1.0.0",
     "babel-core": "^6.26.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.23.0",
     "callsite": "^1.0.0",
