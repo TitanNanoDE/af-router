@@ -1,10 +1,8 @@
-'use strict';
-
-let gulp = require('gulp');
-let babel = require('gulp-babel');
+const { series, src, dest } = require('gulp');
+const babel = require('gulp-babel');
 const clean = require('gulp-clean');
 const sourcemaps = require('gulp-sourcemaps');
-let merge = require ('merge-stream');
+const merge = require ('merge-stream');
 
 const dist = 'testable/';
 
@@ -12,18 +10,23 @@ const babelConfig = {
     'plugins': ['babel-plugin-transform-es2015-modules-commonjs']
 };
 
-gulp.task('clean', () => {
-    return gulp.src(dist, { read: false })
+const clear = function() {
+    return src(dist, { read: false, allowEmpty: true })
         .pipe(clean());
-});
+};
 
-gulp.task('default', ['clean'], () => {
+const compile = function() {
 
-    let core = gulp.src(['lib/**/*.js'], { base: './', })
+    let core = src(['lib/**/*.js'], { base: './', })
         .pipe(sourcemaps.init())
         .pipe(babel(babelConfig))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(dist));
+        .pipe(dest(dist));
 
     return merge(core);
-});
+};
+
+const default_task = series(clear, compile);
+
+
+module.exports = { clear, compile, default: default_task };
