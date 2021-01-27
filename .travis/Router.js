@@ -5,6 +5,7 @@ const istanbulVM = require('./istanbulVM');
 
 describe('Router', () => {
     const triggerTracker = [false, false, false];
+    let triggerTracker3 = false;
 
     const vm = istanbulVM({
         testActions: [{
@@ -22,6 +23,10 @@ describe('Router', () => {
             onEnter() { triggerTracker[2] = 'enter_2'; },
             onLeave() { triggerTracker[2] = 'leave_2'; },
             isPersistent: false,
+        }, {
+            path: '/home/pages/p1/info//edit/{id}/view',
+            onEnter() { triggerTracker3 = 'enter_3'; },
+            onLeave() { triggerTracker3 = 'leave_3'; },
         }],
 
         Event: function() {},
@@ -54,8 +59,63 @@ describe('Router', () => {
             vm.runModule('../testable/lib/Router');
             const result = vm.runModule('./tests/Router/init');
 
-            expect(result.Router.state.actions).to.have.lengthOf(4);
+            expect(result.Router.state.actions).to.have.lengthOf(5);
             expect(result.window.hashchange).to.be.a('function');
+        });
+    });
+
+    describe('add', () => {
+        it('should create a new state action', () => {
+            const routeParams = { path: '/test/124', onEnter() {}, onLeave() {}, };
+
+            vm.updateContext({ testResult: null, testContext: { routeParams } });
+
+            const { testContext } = vm.runModule('./tests/Router/add');
+            const lastAction = testContext.RouterState.actions[testContext.RouterState.actions.length - 1];
+
+            expect(lastAction.path).to.equal(routeParams.path);
+            expect(lastAction.enter).to.equal(routeParams.onEnter);
+            expect(lastAction.exit).to.equal(routeParams.onLeave);
+            expect(lastAction.persistenceBoundary).to.equal(0);
+        });
+
+        it('should throw if there are too many boundaries', () => {
+            const routeParams = { path: '/test//124/ab//next', onEnter() {}, onLeave() {}, };
+
+            vm.updateContext({ testResult: null, testContext: { routeParams } });
+
+            const { testResult } = vm.runModule('./tests/Router/add');
+
+            expect(testResult).to.be.an('error');
+        });
+
+        it('should create a new state action with a persistence boundary', () => {
+            const routeParams = { path: '/test/124//hot/stuff', onEnter() {}, onLeave() {}, };
+
+            vm.updateContext({ testResult: null, testContext: { routeParams } });
+
+            const { testContext } = vm.runModule('./tests/Router/add');
+            const lastAction = testContext.RouterState.actions[testContext.RouterState.actions.length - 1];
+
+            expect(lastAction.path).to.equal('/test/124/hot/stuff');
+            expect(lastAction.enter).to.equal(routeParams.onEnter);
+            expect(lastAction.exit).to.equal(routeParams.onLeave);
+            expect(lastAction.persistenceBoundary).to.equal(2);
+        });
+
+        it('should emit a warning when using both persistence boundary and property', () => {
+            const routeParams = { path: '/test/warn//persistent/sub', isPersistent: true, onEnter() {}, onLeave() {}, };
+
+            vm.updateContext({ testResult: null, testContext: { routeParams } });
+
+            const { testContext, testResult, console: { stats: consoleStats } } = vm.runModule('./tests/Router/add');
+            const lastAction = testContext.RouterState.actions[testContext.RouterState.actions.length - 1];
+
+            expect(lastAction.path).to.equal('/test/warn/persistent/sub');
+            expect(lastAction.enter).to.equal(routeParams.onEnter);
+            expect(lastAction.exit).to.equal(routeParams.onLeave);
+            expect(lastAction.persistenceBoundary).to.equal(2);
+            expect(consoleStats.warn).to.equal(2, 'warning count is off');
         });
     });
 
@@ -80,11 +140,10 @@ describe('Router', () => {
 
     describe('remove', () => {
         it('should remove the action at the given id', () => {
-            expect(vm._context.Router.state.actions).to.have.lengthOf(5);
-
+            const before = vm._context.Router.state.actions.length;
             const result = vm.runModule('./tests/Router/remove');
 
-            expect(result.Router.state.actions).to.have.lengthOf(4);
+            expect(result.Router.state.actions).to.have.lengthOf(before - 1);
         });
     });
 
@@ -132,6 +191,31 @@ describe('Router', () => {
 
             expect(triggerTracker).to.be.eql([false, 'leave_1', false]);
         });
+
+        it('should not leave a persistent state with a boundary greater than 1', () => {
+            vm.updateContext({ testResult: null, testContext: { path: '/home/pages/p1/info/edit/2/view' } });
+            vm.runModule('./tests/Router/routeChanged');
+
+            triggerTracker3 = false;
+
+            vm.updateContext({ testResult: null, testContext: { path: '/home/pages' } });
+            vm.runModule('./tests/Router/routeChanged');
+
+            expect(triggerTracker3).to.be.eql(triggerTracker3);
+        });
+
+        it('should redirect when trying to navigate into an overwritten state from a boundary greater than 1', () => {
+            expect(vm.getContext().window.location.hash).to.be.equal('#!/home/pages');
+
+            triggerTracker[0] = triggerTracker[1] = triggerTracker[2] = triggerTracker3 = false;
+
+            vm.updateContext({ testResult: null, testContext: { path: '/home/pages/p1/info' } });
+            const result = vm.runModule('./tests/Router/routeChanged');
+
+            expect(triggerTracker).to.be.eql([false, false, false]);
+            expect(triggerTracker3).to.be.false;
+            expect(result.window.location.hash).to.be.equal('#!/home/pages/p1/info/edit/2/view');
+        });
     });
 
     describe('up', () => {
@@ -163,7 +247,7 @@ describe('Router', () => {
     describe('restore', () => {
         it('should restore the last path if no path is currently set', () => {
             vm._context.window.location.hash = '';
-            vm._context.window.localStorage.store['af.router.backup'] = '/backed/path/in/storage';
+            vm._context.toBeBackedUp = ['backed', 'path', 'in', 'storage'];
 
             const result = vm.runModule('./tests/Router/restore');
 
@@ -183,7 +267,7 @@ describe('Router', () => {
             vm._context.window.localStorage.store = {};
             vm._context.window.eventDispatched = false;
 
-            let result = vm.runModule('./tests/Router/restore');
+            let result = vm.runModule('./tests/Router/restore_no_backup');
 
             expect(result.window.location.hash).to.be.empty;
             expect(result.window.eventDispatched).to.be.true;

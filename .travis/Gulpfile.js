@@ -1,4 +1,4 @@
-const { series, src, dest } = require('gulp');
+const { series, src, dest } = require('gulp');
 const babel = require('gulp-babel');
 const clean = require('gulp-clean');
 const sourcemaps = require('gulp-sourcemaps');

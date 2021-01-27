@@ -1,5 +1,5 @@
 /* global Router */
 
 (() => {
-    Router.remove(4);
+    Router.remove(5);
 })();
