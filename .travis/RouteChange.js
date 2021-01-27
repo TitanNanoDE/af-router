@@ -4,7 +4,7 @@ const istanbulVM = require('./istanbulVM');
 const RouteChangeType = require('../testable/lib/RouteChangeType').default;
 
 describe('RouteChange', () => {
-    const validTestRegExp = /^\/test\/([^\/#?]+)\/page\/([^\/#?]+)\/dialog\/([^\/#?]+)$/;
+    const validTestRegExp = /^\/test\/([^/#?]+)\/page\/([^/#?]+)\/dialog\/([^/#?]+)$/;
     const vm = istanbulVM();
     let result = null;
 
@@ -63,12 +63,6 @@ describe('RouteChange', () => {
             expect(result.global.result).to.be.ok;
         });
 
-        it('should not enter if the path matches, is persistent and active', () => {
-            result = vm.runModule('./tests/RouteChange_routeItemWasEntered_3');
-
-            expect(result.global.result).to.not.be.ok;
-        });
-
         it('should correctly match a modal state', () => {
             result = vm.runModule('./tests/RouteChange/routeItemWasEntered_4');
 
@@ -88,22 +82,28 @@ describe('RouteChange', () => {
 
     const state = { actions : [{
         path: '/home/rooms/place/1',
-        persistent: false,
+        persistenceBoundary: 0,
         active: false,
         enter() { executedActions[0] = 'enter_0'; },
-        leave() { executedActions[0] = 'leave_0'; }
+        leave() { executedActions[0] = 'leave_0'; },
+        enterParent() {},
+        leaveParent() {},
     }, {
         path: '/home/rooms/place/1/info',
-        persistent: true,
+        persistenceBoundary: 1,
         active: false,
         enter() { executedActions[1] = 'enter_1'; },
         leave() { executedActions[1] = 'leave_1'; },
+        enterParent() {},
+        leaveParent() {},
     }, {
         path: '/work/about',
-        persistent: true,
+        persistenceBoundary: 1,
         active: true,
         enter() { executedActions[2] = 'enter_2'; },
         leave() { executedActions[2] = 'leave_2'; },
+        enterParent() {},
+        leaveParent() {},
     }], overrides : {}, };
 
     describe('constructor', () => {
