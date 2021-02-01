@@ -216,6 +216,17 @@ describe('Router', () => {
             expect(triggerTracker3).to.be.false;
             expect(result.window.location.hash).to.be.equal('#!/home/pages/p1/info/edit/2/view');
         });
+
+        it('should backup "/" if the internal path is "/root"', () => {
+            expect(vm.getContext().window.location.hash).to.be.equal('#!/home/pages/p1/info/edit/2/view');
+
+            triggerTracker[0] = triggerTracker[1] = triggerTracker[2] = triggerTracker3 = false;
+
+            vm.updateContext({ testResult: null, testContext: { path: '/' } });
+            const result = vm.runModule('./tests/Router/routeChanged');
+
+            expect(result.window.localStorage.store['af.router.backup']).to.be.equal('/');
+        });
     });
 
     describe('up', () => {
