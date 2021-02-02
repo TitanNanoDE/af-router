@@ -1,14 +1,11 @@
 before_install:
     - npm i -g npm@latest
-    - npm i -g greenkeeper-lockfile@1
 before_script:
-    - greenkeeper-lockfile-update
     - npm run build
 script:
     - npm run coveralls
-after_script:
-        - greenkeeper-lockfile-upload
 language: node_js
 node_js:
-    - 9
     - 10
+    - 12
+    - 14
