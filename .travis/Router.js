@@ -6,6 +6,7 @@ const istanbulVM = require('./istanbulVM');
 describe('Router', () => {
     const triggerTracker = [false, false, false];
     let triggerTracker3 = false;
+    const trackParentEnter = [false, false];
 
     const vm = istanbulVM({
         testActions: [{
@@ -17,6 +18,8 @@ describe('Router', () => {
             path: '/home/pages/p1/info',
             onEnter() { triggerTracker[1] = 'enter_1'; },
             onLeave() { triggerTracker[1] = 'leave_1'; },
+            onEnterParent() { trackParentEnter[1] = 'enter_1'; },
+            onExitParent() { trackParentEnter[1] = 'exit_1'; },
             isPersistent: true,
         }, {
             path: ['/', '/home'],
@@ -226,6 +229,42 @@ describe('Router', () => {
             const result = vm.runModule('./tests/Router/routeChanged');
 
             expect(result.window.localStorage.store['af.router.backup']).to.be.equal('/');
+        });
+
+        it('should notify if parent was left without leaving child', () => {
+            triggerTracker[1] = false;
+            trackParentEnter[1] = false;
+
+            vm.updateContext({ testResult: null, testContext: { path: '/home/pages/p1/info/edit/124/view' } });
+            vm.runModule('./tests/Router/routeChanged');
+
+            expect(vm.getContext().window.location.hash).to.be.equal('#!/home/pages/p1/info/edit/124/view');
+
+            vm.updateContext({ testResult: null, testContext: { path: '/home' } });
+
+            const result = vm.runModule('./tests/Router/routeChanged');
+
+            expect(result.window.location.hash).to.be.equal('#!/home');
+            expect(triggerTracker[1]).to.be.false;
+            expect(trackParentEnter[1]).to.be.equal('exit_1');
+        });
+
+        it('should notify if child was entered via parent', () => {
+            triggerTracker[1] = false;
+            trackParentEnter[1] = false;
+
+            vm.updateContext({ testResult: null, testContext: { path: '/home' } });
+            vm.runModule('./tests/Router/routeChanged');
+
+            expect(vm.getContext().window.location.hash).to.be.equal('#!/home');
+
+            vm.updateContext({ testResult: null, testContext: { path: '/home/pages/p1/info/edit/124/view' } });
+
+            const result = vm.runModule('./tests/Router/routeChanged');
+
+            expect(result.window.location.hash).to.be.equal('#!/home/pages/p1/info/edit/124/view');
+            expect(triggerTracker[1]).to.be.false;
+            expect(trackParentEnter[1]).to.be.equal('enter_1');
         });
     });
 
