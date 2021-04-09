@@ -1,7 +1,10 @@
 /* eslint-env mocha */
 
-const { expect } = require('chai');
+const { expect, use } = require('chai');
 const istanbulVM = require('./istanbulVM');
+const chaiSubset = require('chai-subset');
+
+use(chaiSubset);
 
 describe('Router', () => {
     const triggerTracker = [false, false, false];
@@ -306,4 +309,41 @@ describe('Router', () => {
             expect(result.window.ga.triggered).to.be.true;
         });
     });
+
+    describe('diffPaths', () => {
+        it('should leave similarly named children of unrelated parents', () => {
+            vm.updateContext({ testResult: null, testContext: {
+                from: '/home/pages/p1/info/edit/124/view',
+                to: '/home/pages/p1/info/edit/53422/view'
+            } });
+
+            const { testResult, RouteChangeType } = vm.runModule('./tests/Router/diffPaths');
+
+            expect(testResult).to.have.property('lost')
+                .which.is.an('array')
+                .and.has.lengthOf(2)
+                .and.to.containSubset([
+                    {
+                        type: RouteChangeType.LOST,
+                        path: '/home/pages/p1/info/edit/124/view',
+                    }, {
+                        type: RouteChangeType.LOST,
+                        path: '/home/pages/p1/info/edit/124'
+                    }
+                ]);
+
+            expect(testResult).to.have.property('added')
+                .which.is.an('array')
+                .and.has.lengthOf(2)
+                .and.to.containSubset([
+                    {
+                        type: RouteChangeType.ADD,
+                        path: '/home/pages/p1/info/edit/53422',
+                    }, {
+                        type: RouteChangeType.ADD,
+                        path: '/home/pages/p1/info/edit/53422/view'
+                    }
+                ]);
+        });
+    })
 });
