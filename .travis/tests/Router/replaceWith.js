@@ -1,5 +1,5 @@
 /* global Router */
 
 (() => {
-    Router.switchTo('/start/third');
+    Router.replaceWith('/start/third');
 })();

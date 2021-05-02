@@ -47,6 +47,7 @@ describe('Router', () => {
                 replace(url) {
                     if (url.startsWith('#')) {
                         this.hash = url;
+                        return;
                     }
 
                     throw new Error('replace is not fully implemented!');
