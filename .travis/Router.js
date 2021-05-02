@@ -38,7 +38,21 @@ describe('Router', () => {
         Event: function() {},
 
         window: {
-            location: { hash: '/start' },
+            location: {
+                host: 'www.localhost.local',
+                protocol: 'https:',
+                pathname: '/',
+                hash: '#!/start',
+                history: [],
+                replace(url) {
+                    if (url.startsWith('#')) {
+                        this.hash = url;
+                        return;
+                    }
+
+                    throw new Error('replace is not fully implemented!');
+                }
+            },
             localStorage: {
                 store: {},
                 setItem(key, value) {
@@ -136,11 +150,21 @@ describe('Router', () => {
 
     describe('down', () => {
         it('should append a new segment to the path', () => {
-            expect(vm._context.window.location.hash).to.be.equal('/start');
+            expect(vm._context.window.location.hash).to.be.equal('#!/start');
 
             const result = vm.runModule('./tests/Router/down');
 
-            expect(result.window.location.hash).to.be.equal('/start/second');
+            expect(result.window.location.hash).to.be.equal('#!/start/second');
+        });
+    });
+
+    describe('replaceWith', () => {
+        it('should replace the current history entry with a new one', () => {
+            expect(vm._context.window.location.hash).to.be.equal('#!/start/second');
+
+            const result = vm.runModule('./tests/Router/replaceWith');
+
+            expect(result.window.location.hash).to.be.equal('#!/start/third');
         });
     });
 
