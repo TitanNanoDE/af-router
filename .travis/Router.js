@@ -152,15 +152,43 @@ describe('Router', () => {
         it('should append a new segment to the path', () => {
             expect(vm._context.window.location.hash).to.be.equal('#!/start');
 
+            const testContext = { params: ['second'] };
+
+            vm.updateContext({ testContext });
+
             const result = vm.runModule('./tests/Router/down');
 
             expect(result.window.location.hash).to.be.equal('#!/start/second');
+        });
+
+        it('should append multiple new segments to the path', () => {
+            expect(vm._context.window.location.hash).to.be.equal('#!/start/second');
+
+            const testContext = { params: ['details', 'view', 'edit'] };
+
+            vm.updateContext({ testContext });
+
+            const result = vm.runModule('./tests/Router/down');
+
+            expect(result.window.location.hash).to.be.equal('#!/start/second/details/view/edit');
+        });
+
+        it('should not add duplicated slashes', () => {
+            vm._context.window.location.hash = '#!/start/';
+
+            const testContext = { params: ['second', 'details'] };
+
+            vm.updateContext({ testContext });
+
+            const result = vm.runModule('./tests/Router/down');
+
+            expect(result.window.location.hash).to.be.equal('#!/start/second/details');
         });
     });
 
     describe('replaceWith', () => {
         it('should replace the current history entry with a new one', () => {
-            expect(vm._context.window.location.hash).to.be.equal('#!/start/second');
+            expect(vm._context.window.location.hash).to.be.equal('#!/start/second/details');
 
             const result = vm.runModule('./tests/Router/replaceWith');
 

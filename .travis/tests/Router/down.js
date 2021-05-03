@@ -1,5 +1,5 @@
 /* global Router */
 
 (() => {
-    Router.down('second');
+    Router.down(...testContext.params);
 })();
