@@ -325,11 +325,22 @@ describe('Router', () => {
 
     describe('up', () => {
         it('should dop the lowest element in the path', () => {
-            vm._context.window.location.hash = '#!/home/pages/p2';
-
+            vm.updateContext({
+                testContext: { hash: '#!/home/pages/p2' }
+            })
             const result = vm.runModule('./tests/Router/up');
 
             expect(result.window.location.hash).to.be.equal('#!/home/pages');
+        });
+
+        it('should dop the lowest 3 elements in the path', () => {
+            vm.updateContext({
+                testContext: { steps: 3, hash: '#!/home/pages/p2' }
+            })
+
+            const result = vm.runModule('./tests/Router/up');
+
+            expect(result.window.location.hash).to.be.equal('#!/');
         });
     });
 
