@@ -1,5 +1,7 @@
-/* global Router */
+/* global Router, testContext */
 
 (() => {
-    Router.up();
+    global.window.location.hash = testContext.hash;
+
+    Router.up(testContext.steps);
 })();
