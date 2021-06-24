@@ -78,39 +78,121 @@ describe('RouteChange', () => {
         });
     });
 
-    const executedActions = [false, false, false];
+    describe('::processEmptyEnterActions', () => {
+        it('should trigger an entry for ::not-found', () => {
+            let entries = [];
+
+            const items = [{
+                path: '/app/listing/details',
+                persistenceBoundary: 0,
+                active: false,
+                enter() { entries.push('Details'); },
+                exit() {},
+                enterParent() {},
+                exitParent() {},
+            }, {
+                path: '/app/listing/{id}',
+                persistenceBoundary: 0,
+                active: false,
+                enter() { entries.push('listing'); },
+                exit() {},
+                enterParent() {},
+                exitParent() {},
+            }, {
+                path: '::not-found',
+                persistenceBoundary: 0,
+                active: false,
+                enter() { entries.push('not-found'); },
+                exit() {},
+                enterParent() {},
+                exitParent() {},
+            }];
+
+            vm.updateContext({ testContext: { items, path: '/random/test/path' } });
+            vm.runModule('./tests/RouteChange_processEmptyEnter');
+
+            expect(entries).to.be.deep.equal(['not-found']);
+        });
+    });
+
+    describe('::processEmptyLeaveActions', () => {
+        it('should trigger an exit for ::not-found', () => {
+            let exits = [];
+
+            const items = [{
+                path: '/app/listing/details',
+                persistenceBoundary: 0,
+                active: false,
+                enter() {},
+                exit() { exits.push('Details'); },
+                enterParent() {},
+                exitParent() {},
+            }, {
+                path: '/app/listing/{id}',
+                persistenceBoundary: 0,
+                active: false,
+                enter() {},
+                exit() { exits.push('listing'); },
+                enterParent() {},
+                exitParent() {},
+            }, {
+                path: '::not-found',
+                persistenceBoundary: 0,
+                active: false,
+                enter() {},
+                exit() { exits.push('not-found'); },
+                enterParent() {},
+                exitParent() {},
+            }];
+
+            vm.updateContext({ testContext: { items, path: '/random/test/path' } });
+            vm.runModule('./tests/RouteChange_processEmptyLeave');
+
+            expect(exits).to.be.deep.equal(['not-found']);
+        });
+    });
+
+    const executedActions = [false, false, false, false];
 
     const state = { actions : [{
         path: '/home/rooms/place/1',
         persistenceBoundary: 0,
         active: false,
         enter() { executedActions[0] = 'enter_0'; },
-        leave() { executedActions[0] = 'leave_0'; },
+        exit() { executedActions[0] = 'leave_0'; },
         enterParent() {},
-        leaveParent() {},
+        exitParent() {},
     }, {
         path: '/home/rooms/place/1/info',
         persistenceBoundary: 1,
         active: false,
         enter() { executedActions[1] = 'enter_1'; },
-        leave() { executedActions[1] = 'leave_1'; },
+        exit() { executedActions[1] = 'leave_1'; },
         enterParent() {},
-        leaveParent() {},
+        exitParent() {},
     }, {
         path: '/work/about',
         persistenceBoundary: 1,
         active: true,
         enter() { executedActions[2] = 'enter_2'; },
-        leave() { executedActions[2] = 'leave_2'; },
+        exit() { executedActions[2] = 'leave_2'; },
         enterParent() {},
-        leaveParent() {},
+        exitParent() {},
+    }, {
+        path: '::not-found',
+        persistenceBoundary: 0,
+        active: false,
+        enter() { executedActions[3] = 'enter_not_found'; },
+        exit() { executedActions[3] = 'leave_not_found'; },
+        enterParent() {},
+        exitParent() {},
     }], overrides : {}, };
 
     describe('constructor', () => {
         const type = RouteChangeType.ADD;
         const path = '/home/rooms/place/1';
 
-        vm._context.global.params = { type: type, path : path, state: state };
+        vm._context.global.params = { type: type, path : path, state: state, isLeaf: true };
 
         it('should construct a new RouteChange object', () => {
             result = vm.runModule('./tests/RouteChange_constructor');
@@ -127,7 +209,7 @@ describe('RouteChange', () => {
 
             vm.runModule('./tests/RouteChange_trigger_1');
 
-            expect(executedActions).to.be.eql(['enter_0', false, false]);
+            expect(executedActions).to.be.eql(['enter_0', false, false, false]);
         });
 
         it('should enter the persistent state, but not if it already active', () => {
@@ -138,7 +220,7 @@ describe('RouteChange', () => {
 
             vm.runModule('./tests/RouteChange_trigger_1');
 
-            expect(executedActions).to.be.eql([false, 'enter_1', false]);
+            expect(executedActions).to.be.eql([false, 'enter_1', false, false]);
         });
 
         it('should not enter a persistent and already active state', () => {
@@ -148,7 +230,7 @@ describe('RouteChange', () => {
             vm._context.global.routeChange.path = path;
             vm.runModule('./tests/RouteChange_trigger_1');
 
-            expect(executedActions).to.be.eql([false, false, false]);
+            expect(executedActions).to.be.eql([false, false, false, false]);
         });
 
         it('should error if an invalid change type was set', () => {
@@ -159,8 +241,32 @@ describe('RouteChange', () => {
             vm._context.routeChange.path = path;
             result = vm.runModule('./tests/RouteChange_trigger_1');
 
-            expect(executedActions).to.be.eql([false, false, false]);
+            expect(executedActions).to.be.eql([false, false, false, false]);
             expect(result.console.stats.error).to.be.equal(1);
+        });
+
+        it('should enter ::not-found if no matching item was found', () => {
+            const path = '/categories/types';
+            executedActions[0] = executedActions[1] = executedActions[2] = executedActions[3] = false;
+
+            vm._context.routeChange.type = RouteChangeType.ADD;
+            vm._context.routeChange.path = path;
+            debugger;
+            result = vm.runModule('./tests/RouteChange_trigger_1');
+
+            expect(executedActions).to.be.eql([false, false, false, 'enter_not_found']);
+        });
+
+        it('should exit ::not-found when switching to a known item', () => {
+            const path = '/categories/types';
+            executedActions[0] = executedActions[1] = executedActions[2] = executedActions[3] = false;
+
+            vm._context.routeChange.type = RouteChangeType.LOST;
+            vm._context.routeChange.path = path;
+            debugger;
+            result = vm.runModule('./tests/RouteChange_trigger_1');
+
+            expect(executedActions).to.be.eql([false, false, false, 'leave_not_found']);
         });
     });
 });
