@@ -237,7 +237,7 @@ describe('RouteChange', () => {
             const path = '/home/rooms/place/1';
             executedActions[0] = executedActions[1] = executedActions[2] = false;
 
-            vm._context.routeChange.type = 123;
+            vm._context.routeChange.type = 123; 
             vm._context.routeChange.path = path;
             result = vm.runModule('./tests/RouteChange_trigger_1');
 
